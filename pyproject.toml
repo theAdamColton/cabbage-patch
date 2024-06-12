@@ -1,0 +1,13 @@
+[project]
+name="cabbage-patch"
+version="0.0.1"
+readme = "README.md"
+description="Highly performant dataset/dataloader for mixed resolution image batching"
+authors=[{name="Adam Colton"}]
+dependencies=[
+    "torch>=2.0.1",
+    "tensorset==0.4.2",
+]
+[tool.setuptools]
+packages = ["cabbage_patch"]
+
