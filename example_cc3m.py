@@ -1,4 +1,5 @@
 import json
+from huggingface_hub import hf_hub_download
 import os
 import torch
 from torchvision.io import write_jpeg
@@ -31,7 +32,23 @@ def main(
 ):
     rng = random.Random(seed)
 
-    dataset = cabbage_patch.CabbageDataset("tars/imagenet1k-sample.tar")
+    # first downloads a sample webdataset tar file,
+    # this uses the huggingface hub.
+    # any tar file containing an image dataset would work for this
+    os.makedirs("tars", exist_ok=True)
+    if not os.path.exists("tars/cc3m-train-0000.tar"):
+        hf_hub_download(
+            "pixparse/cc3m-wds",
+            repo_type="dataset",
+            filename="cc3m-train-0000.tar",
+            cache_dir=None,
+            local_dir="tars/",
+            local_dir_use_symlinks=False,
+        )
+
+    # replace the path with your own tar file! It must have a 'jpg' column and 'txt' column
+    # for this example.
+    dataset = cabbage_patch.CabbageDataset("tars/cc3m-train-0000.tar")
 
     assert final_batch_size % packer_batch_size == 0
 
@@ -52,9 +69,6 @@ def main(
     )
 
     dataloader = DataLoader(dataset, batch_size=None, num_workers=0)
-
-    with open("imagenet1k-labels.json", "r") as f:
-        imagenet_labels_names = json.load(f)
 
     os.makedirs("output/", exist_ok=True)
 
@@ -80,13 +94,17 @@ def main(
                     3,
                 )
 
-                image_label = metadata[sequence_i][int(sequence_id)]["cls"]
-                image_label = imagenet_labels_names[image_label]
+                image_caption = metadata[sequence_i][int(sequence_id)]["txt"]
+
+                image_caption = "".join(
+                    c for c in image_caption if c.isalnum() or c == " "
+                )
+                image_caption = image_caption[:100]
 
                 draw_patch_grid(image)
 
-                save_path = f"output/batch{batch_i:02}-sequence{sequence_i:04}-id{sequence_id:04}-{image_label}.jpg"
-                write_jpeg(image, save_path, quality=95)
+                save_path = f"output/batch{batch_i:02}-sequence{sequence_i:04}-id{sequence_id:04}-{image_caption}.jpg"
+                write_jpeg(image, save_path)
                 print(save_path)
                 n_images += 1
 
