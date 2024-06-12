@@ -74,7 +74,7 @@ def main(
         .rename(pixel_values="jpg")
         .map_dict(
             pixel_values=transforms.RandomResize(
-                resize_min_res, resize_max_res, patch_size, rng
+                resize_min_res, resize_max_res, 1024, patch_size, rng
             )
         )
         .map(transforms.PatchImageRow(patch_size))

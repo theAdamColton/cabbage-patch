@@ -62,13 +62,21 @@ class RandomResize(nn.Module):
     The height and width of the final image will both be divisible by `multiple_of`
     """
 
-    def __init__(self, min_res=64, max_res=384, multiple_of=1, rng=None):
+    def __init__(
+        self,
+        sample_min=64,
+        sample_max=384,
+        max_side_length=1024,
+        multiple_of=1,
+        rng=None,
+    ):
         super().__init__()
-        assert min_res % multiple_of == 0
-        assert max_res % multiple_of == 0
+        assert sample_min % multiple_of == 0
+        assert sample_max % multiple_of == 0
 
-        self.min_res = min_res
-        self.max_res = max_res
+        self.sample_min = sample_min
+        self.sample_max = sample_max
+        self.max_side_length = max_side_length
         self.multiple_of = multiple_of
         if rng is None:
             rng = get_rng()
@@ -77,13 +85,15 @@ class RandomResize(nn.Module):
     def forward(self, pixel_values):
         _, h, w = pixel_values.shape
         # the new resolution is u
-        u = random_a_b(self.min_res, self.max_res, self.rng)
+        u = random_a_b(self.sample_min, self.sample_max, self.rng)
         size = (h * w) ** 0.5
         scale = u / size
         new_h = scale * h
         new_h = int(self.multiple_of * math.ceil(new_h / self.multiple_of))
+        new_h = min(new_h, self.max_side_length)
         new_w = scale * w
         new_w = int(self.multiple_of * math.ceil(new_w / self.multiple_of))
+        new_w = min(new_w, self.max_side_length)
         rz = transforms.Resize((new_h, new_w))
         return rz(pixel_values)
 

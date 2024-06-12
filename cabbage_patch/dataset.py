@@ -99,26 +99,27 @@ class CabbageDataset(wds.WebDataset):
     def batched(self, batchsize, collation_fn=collation_fn, partial=True):
         return super().batched(batchsize, collation_fn, partial)
 
-    def packed(self, **kwargs):
-        return self.compose(packed(**kwargs))
+    def packed(self, *args, **kwargs):
+        return self.compose(packed(*args, **kwargs))
 
-    def packed_x_y(self, **kwargs):
-        return self.compose(packed_x_y(**kwargs))
+    def packed_x_y(self, *args, **kwargs):
+        return self.compose(packed_x_y(*args, **kwargs))
 
     def patch_n_pack(
         self,
         patch_size=16,
         token_drop_chance=0.0,
         sequence_length=256,
-        resize_min_res=64,
-        resize_max_res=256,
+        resize_min=64,
+        resize_max=256,
+        resize_max_res=1024,
         batch_size=16,
         rng=None,
     ):
         return (
             self.map_dict(
                 pixel_values=RandomResize(
-                    resize_min_res, resize_max_res, patch_size, rng=rng
+                    resize_min, resize_max, resize_max_res, patch_size, rng=rng
                 )
             )
             .map(PatchImageRow(patch_size))
