@@ -10,6 +10,7 @@ setup(
         "torch>=2.0.1",
         "tensorset==0.4.2",
     ],
+    py_modules=["cabbage_patch"],
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
 )

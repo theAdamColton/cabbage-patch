@@ -103,7 +103,7 @@ def main(
 
                 draw_patch_grid(image)
 
-                save_path = f"output/batch{batch_i:02}-sequence{sequence_i:04}-id{sequence_id:04}-{image_caption}.jpg"
+                save_path = f"output/cc3m/batch{batch_i:02}-sequence{sequence_i:04}-id{sequence_id:04}-{image_caption}.jpg"
                 write_jpeg(image, save_path)
                 print(save_path)
                 n_images += 1
