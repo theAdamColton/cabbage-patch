@@ -1,9 +1,16 @@
 # cabbage-patch
 
 This library provides utilities for making datasets that patch images at different resolutions and pack them into batches.
+For more details on sequence packing for images, checkout [NaViT](https://arxiv.org/abs/2307.06304). 
 
-It uses webdataset as the backend dataset. 
-Check `example_imagenet1k.py` for an example of how to use `CabbageDataset` with imagenet1k.
+
+cabbage-patch uses the default configuration described by NaViT. Each image is resized to a random side length using 
+a uniform distribution. Image patches can optionally be dropped randomly. 
+The authors of NaViT showed that this configuration works well for CLIP and supervised classification. 
+
+
+cabbage-patch uses webdataset as the backend dataset. 
+Check `example_cc3m.py` for an example of how to use `CabbageDataset`.
 
 
 # Packing and batch size
@@ -14,7 +21,7 @@ the result of multiple CabbageDatasets. There are then two batch sizes to contro
  and the dataloader batch size determines the number of worker results that will get collated together. The overall
 batch size is the product of the two.
 
-If you are using a very large overall batch size it would be faster to set a lower `packer_batch_size`. But lowering
+If you are using a very large overall batch size it is faster to use a lower `packer_batch_size`. But lowering
 the `packer_batch_size` will cause the packer to use more padding.
 
 
