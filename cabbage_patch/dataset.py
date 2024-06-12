@@ -3,7 +3,7 @@ import numpy as np
 import webdataset as wds
 import tensorset as ts
 
-from cabbage_patch.packer import Packer, PairPacker
+from cabbage_patch.packer import DEFAULT_TENSORSET_PADDING, Packer, PairPacker
 from cabbage_patch.transforms import PatchImageRow, RandomResize, TokenDropper
 
 
@@ -24,9 +24,14 @@ def _addin_ids(x: ts.TensorSet, id):
     x.named_columns["sequence_ids"] = ids
 
 
-def _packed(data, sequence_length=256, batch_size=16):
+def _packed(
+    data,
+    sequence_length=256,
+    batch_size=16,
+    pad_value_dict=DEFAULT_TENSORSET_PADDING,
+):
     """"""
-    packer = Packer(sequence_length, batch_size)
+    packer = Packer(sequence_length, batch_size, pad_value_dict)
     id = 0
     for sample in data:
         verify_patches(sample)
@@ -43,12 +48,20 @@ def _packed(data, sequence_length=256, batch_size=16):
 packed = wds.pipelinefilter(_packed)
 
 
-def _packed_x_y(data, sequence_length_x=256, sequence_length_y=256, batch_size=16):
+def _packed_x_y(
+    data,
+    sequence_length_x=256,
+    sequence_length_y=256,
+    batch_size=16,
+    pad_value_dict=DEFAULT_TENSORSET_PADDING,
+):
     """
     Packs x,y pairs into two batches
     an x,y sample will have x and y put in the same sequence of each batch
     """
-    packer = PairPacker(sequence_length_x, sequence_length_y, batch_size)
+    packer = PairPacker(
+        sequence_length_x, sequence_length_y, batch_size, pad_value_dict
+    )
     id = 0
     for sample in data:
         verify_patches(sample, "x_patches")
@@ -86,13 +99,11 @@ class CabbageDataset(wds.WebDataset):
     def batched(self, batchsize, collation_fn=collation_fn, partial=True):
         return super().batched(batchsize, collation_fn, partial)
 
-    def packed(self, sequence_length=256, batch_size=16):
-        return self.compose(packed(sequence_length, batch_size))
+    def packed(self, **kwargs):
+        return self.compose(packed(**kwargs))
 
-    def packed_x_y(self, sequence_length_x=256, sequence_length_y=256, batch_size=16):
-        return self.compose(
-            packed_x_y(sequence_length_x, sequence_length_y, batch_size)
-        )
+    def packed_x_y(self, **kwargs):
+        return self.compose(packed_x_y(**kwargs))
 
     def patch_n_pack(
         self,

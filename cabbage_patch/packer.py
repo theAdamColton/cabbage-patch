@@ -4,7 +4,7 @@ import tensorset as ts
 
 
 MASK_ID = -100
-TENSORSET_PADDING_VALUE_DICT = {
+DEFAULT_TENSORSET_PADDING = {
     "height_ids": 0,
     "width_ids": 0,
     "patches": 0,
@@ -15,7 +15,7 @@ TENSORSET_PADDING_VALUE_DICT = {
 def pad_tensorsequence_to_length(
     sequence: List[ts.TensorSet],
     sequence_length: int,
-    pad_value_dict=TENSORSET_PADDING_VALUE_DICT,
+    pad_value_dict=DEFAULT_TENSORSET_PADDING,
 ) -> ts.TensorSet:
     sequence = ts.cat(sequence, 0)
 
@@ -41,6 +41,7 @@ class PairPacker:
         sequence_length_x,
         sequence_length_y,
         batch_size,
+        pad_value_dict=DEFAULT_TENSORSET_PADDING,
     ):
         self.sequence_length_x = sequence_length_x
         self.sequence_length_y = sequence_length_y
@@ -56,6 +57,7 @@ class PairPacker:
 
         self.unpacked_metadata: List[dict[int, dict]] = [{} for _ in range(batch_size)]
         self.packed_metadata: List[List[dict[int, dict]]] = []
+        self.pad_value_dict = pad_value_dict
 
     def append(self, x: ts.TensorSet, y: ts.TensorSet, id: int, metadata: dict = {}):
         sequence_length_x = x.size(0)
@@ -97,6 +99,7 @@ class PairPacker:
             sequence = pad_tensorsequence_to_length(
                 sequence,
                 self.sequence_length_x,
+                self.pad_value_dict,
             )
             batch_x.append(sequence)
         self.unpacked_batch_x = [[] for _ in range(self.batch_size)]
@@ -109,6 +112,7 @@ class PairPacker:
             sequence = pad_tensorsequence_to_length(
                 sequence,
                 self.sequence_length_y,
+                self.pad_value_dict,
             )
             batch_y.append(sequence)
         self.unpacked_batch_y = [[] for _ in range(self.batch_size)]
@@ -141,6 +145,7 @@ class Packer:
         self,
         sequence_length,
         batch_size,
+        pad_value_dict=DEFAULT_TENSORSET_PADDING,
     ):
         self.sequence_length = sequence_length
         self.batch_size = batch_size
@@ -149,6 +154,8 @@ class Packer:
 
         self.unpacked_metadata: List[dict[int, dict]] = [{} for _ in range(batch_size)]
         self.packed_metadata: List[List[dict[int, dict]]] = []
+
+        self.pad_value_dict = pad_value_dict
 
     def append(self, sequence: ts.TensorSet, id: int, metadata: dict = {}):
         """
@@ -178,6 +185,7 @@ class Packer:
             sequence = pad_tensorsequence_to_length(
                 sequence,
                 self.sequence_length,
+                self.pad_value_dict,
             )
             batch.append(sequence)
 
