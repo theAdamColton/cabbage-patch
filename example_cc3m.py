@@ -1,4 +1,3 @@
-import json
 from huggingface_hub import hf_hub_download
 import os
 import torch
@@ -71,6 +70,7 @@ def main(
     dataloader = DataLoader(dataset, batch_size=None, num_workers=0)
 
     os.makedirs("output/", exist_ok=True)
+    os.makedirs("output/cc3m", exist_ok=True)
 
     p_padding = []
 

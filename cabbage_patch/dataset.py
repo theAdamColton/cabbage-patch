@@ -56,7 +56,7 @@ def _packed_x_y(data, sequence_length_x=256, sequence_length_y=256, batch_size=1
         x, y = sample.pop("x_patches"), sample.pop("y_patches")
         _addin_ids(x, id)
         _addin_ids(y, id)
-        packer.append(x, y)
+        packer.append(x, y, id, sample)
         if packer.can_pop_batch():
             x, y, metadata = packer.pop_batch()
             yield {"x_patches": x, "y_patches": y, "metadata": metadata}
@@ -88,6 +88,11 @@ class CabbageDataset(wds.WebDataset):
 
     def packed(self, sequence_length=256, batch_size=16):
         return self.compose(packed(sequence_length, batch_size))
+
+    def packed_x_y(self, sequence_length_x=256, sequence_length_y=256, batch_size=16):
+        return self.compose(
+            packed_x_y(sequence_length_x, sequence_length_y, batch_size)
+        )
 
     def patch_n_pack(
         self,
