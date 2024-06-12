@@ -36,3 +36,12 @@ I use `TensorSet` to make it easier to deal with multiple related tensor sequenc
 * `height_ids` and `width_ids` are padded with zeros
 * `patches` is padded with zeros
 * `sequence_ids` is padded with `-100`
+
+# Example outputs
+(The red grid lines have been added to show the patch boundaries)
+
+![batch01-sequence0001-id0058-a man wades through a water logged road during rains ](https://github.com/theAdamColton/cabbage-patch/assets/72479734/855aa838-5a32-4a47-bbda-21cfadcdd99b)
+
+![batch01-sequence0026-id0095-according to person we need to run out and get some plaid ](https://github.com/theAdamColton/cabbage-patch/assets/72479734/8285fd97-6d7a-4407-af91-18417eedfe82)
+![batch01-sequence0011-id0074-falcon unique design of an old motorcycle](https://github.com/theAdamColton/cabbage-patch/assets/72479734/59395d7e-190d-4caf-89da-207213137acf)
+
