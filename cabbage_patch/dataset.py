@@ -119,10 +119,12 @@ class CabbageDataset(wds.WebDataset):
         return (
             self.map_dict(
                 pixel_values=RandomResize(
-                    resize_min, resize_max, resize_max_res, patch_size, rng=rng
+                    resize_min, resize_max, resize_max_res, patch_size, torch_rng=rng
                 )
             )
             .map(PatchImageRow(patch_size))
-            .map_dict(patches=TokenDropper(token_drop_chance, sequence_length, rng=rng))
+            .map_dict(
+                patches=TokenDropper(token_drop_chance, sequence_length, torch_rng=rng)
+            )
             .packed(sequence_length, batch_size)
         )

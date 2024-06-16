@@ -6,7 +6,7 @@ from torch import nn
 import torch
 import tensorset as ts
 
-from cabbage_patch.utils import get_rng, random_a_b
+from cabbage_patch.utils import random_a_b
 
 
 class PatchImageRow(nn.Module):
@@ -68,7 +68,7 @@ class RandomResize(nn.Module):
         sample_max=384,
         max_side_length=1024,
         multiple_of=1,
-        rng=None,
+        torch_rng=None,
     ):
         super().__init__()
         assert sample_min % multiple_of == 0
@@ -78,14 +78,12 @@ class RandomResize(nn.Module):
         self.sample_max = sample_max
         self.max_side_length = max_side_length
         self.multiple_of = multiple_of
-        if rng is None:
-            rng = get_rng()
-        self.rng = rng
+        self.torch_rng = torch_rng
 
     def forward(self, pixel_values):
         _, h, w = pixel_values.shape
         # the new resolution is u
-        u = random_a_b(self.sample_min, self.sample_max, self.rng)
+        u = random_a_b(self.sample_min, self.sample_max, self.torch_rng)
         size = (h * w) ** 0.5
         scale = u / size
         new_h = scale * h
@@ -110,16 +108,12 @@ class TokenDropper(nn.Module):
         self,
         drop_chance=0.25,
         max_sequence_length: Optional[int] = None,
-        rng=None,
+        torch_rng=None,
     ):
         super().__init__()
         self.drop_chance = drop_chance
         self.max_sequence_length = max_sequence_length
-        if rng is None:
-            rng = get_rng()
-        self.torch_rng = torch.Generator().manual_seed(
-            rng.randint(-999999999, 999999999)
-        )
+        self.torch_rng = torch_rng
 
     def forward(self, sequence: ts.TensorSet):
         sequence_length = sequence.size(0)

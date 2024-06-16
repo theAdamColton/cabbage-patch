@@ -1,16 +1,10 @@
 import torch
 import einx
-import os
-import time
-import random
 
 
-def get_rng():
-    return random.Random(int((os.getpid() + time.time()) * 1e9))
-
-
-def random_a_b(a, b, rng):
-    return rng.random() * (b - a) + a
+def random_a_b(a, b, torch_rng):
+    u = torch.rand((1,), generator=torch_rng)
+    return u * (b - a) + a
 
 
 def unpatch(patches, height_ids, width_ids, patch_size: int, image_channels: int):
