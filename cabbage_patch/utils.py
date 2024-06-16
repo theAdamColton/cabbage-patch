@@ -2,7 +2,7 @@ import torch
 import einx
 
 
-def random_a_b(a, b, torch_rng):
+def random_a_b(a, b, torch_rng=None):
     u = torch.rand((1,), generator=torch_rng)
     return u * (b - a) + a
 
